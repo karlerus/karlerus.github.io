@@ -1,0 +1,25 @@
+<html>
+<head>
+    <title> Tjejer Kodar Excersie </title>
+    <link rel="stylesheet" href="exercise.css" />
+    
+    <script src="libs/phaser.min.js"></script>
+    <script src="source/mainGameState.js"></script>
+</head>
+
+<body>
+    <h1><u>Space Avengers!</u></h1>
+    
+    <p>A game made at Tjejer Kodar 2017</p>
+    <p>by <b>Mikaela</b>.</p>
+    
+    <div id="gameContainer"></div>
+    
+    <script>
+        var game = new Phaser.Game(400, 600, Phaser.AUTO, 'gameContainer'); //object containing our game
+        game.state.add("MainGame", mainGameState); // these 2 lines reister the object you've created in source/mainGameState.js as a state that Phaser is able to use. The next line of code tells Phaser to start that state
+        game.state.start("MainGame");
+    </script>
+    
+</body>
+</html>
