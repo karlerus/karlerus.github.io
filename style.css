@@ -1,0 +1,17 @@
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: Arial;
+}
+
+h1 {
+    color: #999999;
+    font-family: Tahoma;
+}
+
+#gameContainer {
+    background-color: #FF0077; // doesn't need a background-color
+    height: 200px;
+    width: 200px;
+    margin: 0 auto;
+}
