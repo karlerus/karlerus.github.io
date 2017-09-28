@@ -23,6 +23,12 @@ mainGameState.preload = function() {
     this.game.load.image("bullet-plasma", "assets/images/bullet-plasma.png");
     this.game.load.image("bullet-simple", "assets/images/bullet-simple.png");
     this.game.load.image("bullet-swarm", "assets/images/bullet-swarm.png");
+    this.game.load.audio("player_fire_01", "assets/audio/player_fire_01.mp3");
+    this.game.load.audio("player_fire_02", "assets/audio/player_fire_02.mp3");
+    this.game.load.audio("player_fire_03", "assets/audio/player_fire_03.mp3");
+    this.game.load.audio("player_fire_04", "assets/audio/player_fire_04.mp3");
+    this.game.load.audio("player_fire_05", "assets/audio/player_fire_05.mp3");
+    this.game.load.audio("player_fire_06", "assets/audio/player_fire_06.mp3");
 }
 
 // Add the create function
@@ -38,6 +44,16 @@ mainGameState.create = function() {
     this.music.play();
     this.music.volume = 1;
     this.music.loop = true;
+        
+    // Add this to your create function to add the sound effect to your world
+    // Note that it will not play until you tell it to play later
+    this.playerFireSfx = [];
+    this.playerFireSfx.push(game.add.audio("player_fire_01"));
+    this.playerFireSfx.push(game.add.audio("player_fire_02"));
+    this.playerFireSfx.push(game.add.audio("player_fire_03"));
+    this.playerFireSfx.push(game.add.audio("player_fire_04"));
+    this.playerFireSfx.push(game.add.audio("player_fire_05"));
+    this.playerFireSfx.push(game.add.audio("player_fire_06"));
     
     // add asteroid timer
     this.asteroidTimer = 2.0;
@@ -53,7 +69,20 @@ mainGameState.create = function() {
     this.cursors = game.input.keyboard.createCursorKeys();
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);
     
-    // put this in a seperate function? ______________________________________________________
+    // add a score variable
+    var textStyle = {font: "14px Arial", fill: "#ccddff", align: "center"}
+    
+    this.scoreTitle = game.add.text(game.width * 0.9, 20, "SCORE", textStyle);
+    this.scoreTitle.fixedToCamera = true;
+    this.scoreTitle.anchor.setTo(0.5, 0.5);
+    
+    this.scoreValue = game.add.text(game.width * 0.9, 40, "0", textStyle);
+    this.scoreValue.fixedToCamera = true;
+    this.scoreValue.anchor.setTo(0.5, 0.5);
+    
+    this.playerScore = 0;
+    
+    // put this in a seperate function?________________________________________
     // coordinates for spaceShip
     var shipX = game.width * 0.5;
     var shipY = game.height * 0.9;
@@ -62,7 +91,7 @@ mainGameState.create = function() {
     this.playerShip.anchor.setTo(0.5, 0.5);
     // allow Phaser physics system to controle the playership
     game.physics.arcade.enable(this.playerShip);
-    // _______________________________________________________________________________________
+    // ___________________________________________________________________________
 }
 
 // Add the update function
@@ -74,17 +103,23 @@ mainGameState.update = function() {
 
     if( this.asteroidTimer <= 0.0 ) {
     // prints just to check that the timer works
-        console.log("SPAWN ASTEROID");
+        //console.log("SPAWN ASTEROID");
         mainGameState.spawnAsteroid();
         this.asteroidTimer = 2.0;
     }
     
     if( this.fireKey.isDown ) {
-        console.log("FIRE KEY PRESSED")
+    //console.log("FIRE KEY PRESSED")
         this.spawnPlayerBullet();
     }
     
     this.bulletTimer -= game.time.physicsElapsed;
+    
+    // update score
+    this.scoreValue.setText(this.playerScore);
+    
+    // collision 
+   game.physics.arcade.collide(this.asteroids, this.playerBullets, mainGameState.onAsteroidBulletCollision, null, this);
     
     // clean up any asteroids that have moved off the bottom of the screen
     for( var i = 0; i < this.asteroids.children.length; i++ ) {
@@ -155,9 +190,21 @@ mainGameState.spawnPlayerBullet = function() {
         bullet.anchor.setTo(0.5, 0.5);
         game.physics.arcade.enable(bullet);
         bullet.body.velocity.setTo(0, -200);
+        
+        var index = game.rnd.integerInRange(0, this.playerFireSfx.length - 1);
+        this.playerFireSfx[index].play();
     
         // add to the playerBullets group
         this.playerBullets.add(bullet);
     }
     
+}
+
+mainGameState.onAsteroidBulletCollision = function(asteroid, bullet) {
+    //console.log("COLLISION");
+    asteroid.pendingDestroy = true;
+    bullet.pendingDestroy = true;
+    
+    // increase player score
+    this.playerScore += 50;
 }
