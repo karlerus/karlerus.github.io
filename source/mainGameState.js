@@ -73,11 +73,15 @@ mainGameState.create = function() {
     this.asteroidTimer = 2.0;
     // add bullet timer
     this.bulletTimer = 0.4;
+    // add life timer
+    this.lifeTimer = 10.0;
     
     // create asteroid group
     this.asteroids = game.add.group();
     // create bullet group
     this.playerBullets = game.add.group();
+    // create life group
+    this.livesGroup = game.add.group();
     
     // keep track of which arrow keys the user has pressed down
     this.cursors = game.input.keyboard.createCursorKeys();
@@ -135,6 +139,15 @@ mainGameState.update = function() {
         this.asteroidTimer = 2.0;
     }
     
+    this.lifeTimer -= game.time.physicsElapsed;
+    
+    if( this.lifeTimer <= 0.0 ) {
+    // prints just to check that the timer works
+        console.log("SPAWN LIFE");
+        mainGameState.spawnLife();
+        this.lifeTimer = game.rnd.integerInRange(10.0, 20.0);
+    }
+    
     if( this.fireKey.isDown ) {
     //console.log("FIRE KEY PRESSED")
         this.spawnPlayerBullet();
@@ -152,6 +165,12 @@ mainGameState.update = function() {
     // update lives
     this.livesValue.setText(this.lives);
     
+    // collision player & life
+    game.physics.arcade.collide(this.playerShip, this.livesGroup, mainGameState.onPlayerLifeCollision, null, this);
+    // update lives
+    this.livesValue.setText(this.lives);
+    
+
     if ( this.lives <= 0 ) {
         game.state.start("GameOver");
     }
@@ -190,13 +209,29 @@ mainGameState.updatePlayer = function() {
     }
 }
 
+mainGameState.spawnLife = function() {
+    //
+    var x = game.rnd.integerInRange(0, game.width);
+    var life = game.add.sprite(x, 0, "nurse-redheart"); 
+    life.anchor.setTo(0.5, 0.5);
+    game.physics.arcade.enable(life);
+
+    // set the velocity of the life
+    var life_velocity = 100;
+    life.body.velocity.setTo(0, life_velocity);
+    
+    //add to the livesGroup
+    this.livesGroup.add(life);
+}
+
+
 mainGameState.spawnAsteroid = function() {
     // setup and create asteroid
     
     // set the x position to a random value
     var x = game.rnd.integerInRange(0, game.width);
     // set the asteroid type
-    var asteroid_types = ["applejack", "fluttershy", "pinkie-pie", "rainbow-dash", "rarity", "twilight-sparkle", "nurse-redheart", "spike"];
+    var asteroid_types = ["applejack", "fluttershy", "pinkie-pie", "rainbow-dash", "rarity", "twilight-sparkle", "spike"];
     var index = game.rnd.integerInRange(0, asteroid_types.length-1);
     var asteroid = game.add.sprite(x, 0, asteroid_types[index]); 
     asteroid.anchor.setTo(0.5, 0.5);
@@ -256,4 +291,14 @@ mainGameState.onPlayerAsteroidCollision = function(object1, object2) {
     }
 
     this.lives -= 1;
+}
+
+mainGameState.onPlayerLifeCollision = function(object1, object2) {
+    if ( object1.key.includes("life") ) {
+        object1.pendingDestroy = true;
+    } else {
+        object2.pendingDestroy = true;
+    }
+
+    this.lives += 1;
 }
