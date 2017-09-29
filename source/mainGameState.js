@@ -3,26 +3,41 @@ var mainGameState = { }
 var ship_velocity = 200;
 var asteroid_velocity_min = 100;
 var asteroid_velocity_max = 250;
-var asteroid_angular_min = 50;
-var asteroid_angular_max = 150;
+//var asteroid_angular_min = 50;
+//var asteroid_angular_max = 150;
+var cutiemark_angular_min = 100;
+var cutiemark_angular_max = 250;
+var playerScore = 0;
+
 
 // Add the preload function
 mainGameState.preload = function() { 
     console.log("Pre-loading the Game");
-    this.game.load.image("space-bg", "assets/images/space-bg.jpg");
+    this.game.load.image("bg4", "assets/images/bg4.png");
     this.game.load.image("player-ship", "assets/images/player-ship.png");
-    this.game.load.audio("bg_music", "assets/audio/bg_music.mp3");
+    this.game.load.audio("pinkie-pie-make-a-wish", "assets/music/pinkie-pie-make-a-wish.mp3");
     // asteroid types
-    this.game.load.image("asteroid-small-01", "assets/images/asteroid-small-01.png");
-    this.game.load.image("asteroid-small-02", "assets/images/asteroid-small-02.png");
-    this.game.load.image("asteroid-medium-01", "assets/images/asteroid-medium-01.png");
-    this.game.load.image("asteroid-medium-02", "assets/images/asteroid-medium-02.png");
+    this.game.load.image("applejack", "assets/images/applejack.png");
+    this.game.load.image("fluttershy", "assets/images/fluttershy.png");
+    this.game.load.image("pinkie-pie", "assets/images/pinkie-pie.png");  
+    this.game.load.image("rainbow-dash", "assets/images/rainbow-dash.png");
+    this.game.load.image("rarity", "assets/images/rarity.png");
+    this.game.load.image("twilight-sparkle", "assets/images/twilight-sparkle.png");
+    
+    this.game.load.image("nurse-redheart", "assets/images/nurse-redheart.png");
+    this.game.load.image("spike", "assets/images/spike.png");
+        
     // bullet types
-    this.game.load.image("bullet-fire", "assets/images/bullet-fire.png");
-    this.game.load.image("bullet-laser", "assets/images/bullet-laser.png");
-    this.game.load.image("bullet-plasma", "assets/images/bullet-plasma.png");
-    this.game.load.image("bullet-simple", "assets/images/bullet-simple.png");
-    this.game.load.image("bullet-swarm", "assets/images/bullet-swarm.png");
+    this.game.load.image("cutiemark-applejack","assets/images/cutiemark-applejack.png");
+    this.game.load.image("cutiemark-fluttershy","assets/images/cutiemark-fluttershy.png");
+    this.game.load.image("cutiemark-pinkie-pie","assets/images/cutiemark-pinkie-pie.png");
+    this.game.load.image("cutiemark-rainbow-dash","assets/images/cutiemark-rainbow-dash.png");
+    this.game.load.image("cutiemark-rarity","assets/images/cutiemark-rarity.png");
+    this.game.load.image("cutiemark-twilight-sparkle","assets/images/cutiemark-twilight-sparkle.png");
+    
+    this.game.load.image("cutiemark-nurse-redheart","assets/images/cutiemark-nurse-redheart.png");   
+    this.game.load.image("cutiemark-spike","assets/images/cutiemark-spike.png");       
+    // bullet audio
     this.game.load.audio("player_fire_01", "assets/audio/player_fire_01.mp3");
     this.game.load.audio("player_fire_02", "assets/audio/player_fire_02.mp3");
     this.game.load.audio("player_fire_03", "assets/audio/player_fire_03.mp3");
@@ -37,10 +52,9 @@ mainGameState.create = function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     
     // add background
-    game.add.sprite(0,0, "space-bg");
-    
-    // add music
-    this.music = game.add.audio("bg_music")
+    game.add.sprite(0,0, "bg4");
+    // add background music
+    this.music = game.add.audio("pinkie-pie-make-a-wish")
     this.music.play();
     this.music.volume = 1;
     this.music.loop = true;
@@ -70,7 +84,7 @@ mainGameState.create = function() {
     this.fireKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);
     
     // add a score variable
-    var textStyle = {font: "14px Arial", fill: "#ccddff", align: "center"}
+    var textStyle = {font: "14px Arial", fill: "#000000", align: "center"}
     
     this.scoreTitle = game.add.text(game.width * 0.9, 20, "SCORE", textStyle);
     this.scoreTitle.fixedToCamera = true;
@@ -91,7 +105,21 @@ mainGameState.create = function() {
     this.playerShip.anchor.setTo(0.5, 0.5);
     // allow Phaser physics system to controle the playership
     game.physics.arcade.enable(this.playerShip);
+    this.playerShip.body.immovable = true;
     // ___________________________________________________________________________
+
+    // add a lives variable
+    var textStyle = {font: "14px Arial", fill: "#000000", align: "center"}
+
+    this.livesTitle = game.add.text(game.width * 0.8, 20, "LIVES", textStyle);
+    this.livesTitle.fixedToCamera = true;
+    this.livesTitle.anchor.setTo(0.5, 0.5);
+
+    this.livesValue = game.add.text(game.width * 0.8, 40, "0", textStyle);
+    this.livesValue.fixedToCamera = true;
+    this.livesValue.anchor.setTo(0.5, 0.5);
+    
+    this.lives = 3;
 }
 
 // Add the update function
@@ -100,7 +128,6 @@ mainGameState.update = function() {
     
     this.asteroidTimer -= game.time.physicsElapsed;
     
-
     if( this.asteroidTimer <= 0.0 ) {
     // prints just to check that the timer works
         //console.log("SPAWN ASTEROID");
@@ -115,11 +142,19 @@ mainGameState.update = function() {
     
     this.bulletTimer -= game.time.physicsElapsed;
     
+    // collision asteroid & bullet
+   game.physics.arcade.collide(this.asteroids, this.playerBullets, mainGameState.onAsteroidBulletCollision, null, this);
     // update score
     this.scoreValue.setText(this.playerScore);
     
-    // collision 
-   game.physics.arcade.collide(this.asteroids, this.playerBullets, mainGameState.onAsteroidBulletCollision, null, this);
+    // collision asteroid & player
+    game.physics.arcade.collide(this.playerShip, this.asteroids, mainGameState.onPlayerAsteroidCollision, null, this);
+    // update lives
+    this.livesValue.setText(this.lives);
+    
+    if ( this.lives <= 0 ) {
+        game.state.start("GameOver");
+    }
     
     // clean up any asteroids that have moved off the bottom of the screen
     for( var i = 0; i < this.asteroids.children.length; i++ ) {
@@ -161,18 +196,19 @@ mainGameState.spawnAsteroid = function() {
     // set the x position to a random value
     var x = game.rnd.integerInRange(0, game.width);
     // set the asteroid type
-    var asteroid_types = ["asteroid-small-01", "asteroid-small-02", "asteroid-medium-01", "asteroid-medium-02"];
+    var asteroid_types = ["applejack", "fluttershy", "pinkie-pie", "rainbow-dash", "rarity", "twilight-sparkle", "nurse-redheart", "spike"];
     var index = game.rnd.integerInRange(0, asteroid_types.length-1);
-    
     var asteroid = game.add.sprite(x, 0, asteroid_types[index]); 
     asteroid.anchor.setTo(0.5, 0.5);
     game.physics.arcade.enable(asteroid);
+    
     // set the velocity of the asteroid
     var asteroid_velocity = game.rnd.integerInRange(asteroid_velocity_min, asteroid_velocity_max);
-    
     asteroid.body.velocity.setTo(0, asteroid_velocity);
-    var asteroid_angular = game.rnd.integerInRange(asteroid_angular_min, asteroid_angular_max);
-    asteroid.body.angularVelocity = asteroid_angular;
+    
+    // if you want the asteroids to spin....................
+    //var asteroid_angular = game.rnd.integerInRange(asteroid_angular_min, asteroid_angular_max);
+    //asteroid.body.angularVelocity = asteroid_angular;
     
     // add to the asteroid group
     this.asteroids.add(asteroid);
@@ -180,7 +216,7 @@ mainGameState.spawnAsteroid = function() {
 
 mainGameState.spawnPlayerBullet = function() {
     // set the bullet type
-    var bullet_types = ["bullet-fire", "bullet-laser", "bullet-plasma", "bullet-simple", "bullet-swarm"];
+    var bullet_types = ["cutiemark-applejack", "cutiemark-fluttershy", "cutiemark-pinkie-pie", "cutiemark-rainbow-dash", "cutiemark-rarity", "cutiemark-twilight-sparkle", "cutiemark-nurse-redheart", "cutiemark-spike"];
     var index = game.rnd.integerInRange(0, bullet_types.length-1);
     
     if( this.bulletTimer < 0 ) {
@@ -190,6 +226,9 @@ mainGameState.spawnPlayerBullet = function() {
         bullet.anchor.setTo(0.5, 0.5);
         game.physics.arcade.enable(bullet);
         bullet.body.velocity.setTo(0, -200);
+        // if you want the bullets/cutiemarks to spin....................
+        var cutiemark_angular = game.rnd.integerInRange(cutiemark_angular_min, cutiemark_angular_max);
+        bullet.body.angularVelocity = cutiemark_angular;
         
         var index = game.rnd.integerInRange(0, this.playerFireSfx.length - 1);
         this.playerFireSfx[index].play();
@@ -207,4 +246,14 @@ mainGameState.onAsteroidBulletCollision = function(asteroid, bullet) {
     
     // increase player score
     this.playerScore += 50;
+}
+
+mainGameState.onPlayerAsteroidCollision = function(object1, object2) {
+    if ( object1.key.includes("asteroid") ) {
+        object1.pendingDestroy = true;
+    } else {
+        object2.pendingDestroy = true;
+    }
+
+    this.lives -= 1;
 }

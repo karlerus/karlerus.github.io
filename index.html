@@ -1,24 +1,28 @@
 <html>
 <head>
     <title> Tjejer Kodar Excersie </title>
-    <link rel="stylesheet" href="exercise.css" />
+    <link rel="stylesheet" href="style.css" />
     
     <script src="libs/phaser.min.js"></script>
     <script src="source/mainGameState.js"></script>
+    <script src="source/gameOverState.js"></script>
 </head>
 
 <body>
+    <div id="centerbox">
     <h1><u>Space Avengers!</u></h1>
     
     <p>A game made at Tjejer Kodar 2017</p>
     <p>by <b>Mikaela</b>.</p>
+    <img src="assets/images/my-little-pony3.jpg"  style="width: 800px" />
     
     <div id="gameContainer"></div>
-    
+    </div>
     <script>
-        var game = new Phaser.Game(400, 600, Phaser.AUTO, 'gameContainer'); //object containing our game
-        game.state.add("MainGame", mainGameState); // these 2 lines reister the object you've created in source/mainGameState.js as a state that Phaser is able to use. The next line of code tells Phaser to start that state
-        game.state.start("MainGame");
+        var game = new Phaser.Game(800, 500, Phaser.AUTO, 'gameContainer'); //object containing our game
+        game.state.add("MainGame", mainGameState); // these line register the object you've created in source/mainGameState.js as a state that Phaser is able to use.
+        game.state.add("GameOver", gameOverState); 
+        game.state.start("MainGame"); // This line of code tells Phaser to start that state
     </script>
     
 </body>

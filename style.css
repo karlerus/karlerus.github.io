@@ -1,6 +1,6 @@
 body {
-    background-color: #000000;
-    color: #FFFFFF;
+    background-color: #cfeff6;
+    color: #000000;
     font-family: Arial;
 }
 
@@ -9,9 +9,15 @@ h1 {
     font-family: Tahoma;
 }
 
+#centerbox {
+    width: 800px;
+    margin: 20px auto 20px auto;
+    border: 1 px solid #ff0000;
+}
+
 #gameContainer {
-    background-color: #FF0077; // doesn't need a background-color
+    background-color: #678933; // doesn't need a background-color
     height: 200px;
     width: 200px;
-    margin: 0 auto;
+    margin: 0;
 }
