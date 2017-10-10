@@ -10,10 +10,10 @@ gameOverState.create = function() {
     // add background
     game.add.sprite(0,0, "bg");
     // add background music
-    this.music = game.add.audio("pinkie-pie-make-a-wish")
-    this.music.play();
-    this.music.volume = 1;
-    this.music.loop = true;  
+    //this.music = game.add.audio("pinkie-pie-make-a-wish")
+    //this.music.play();
+    //this.music.volume = 1;
+    //this.music.loop = true;  
     
     // add the GAME OVER pony
     this.gameOverPony = game.add.sprite(game.width * 0.5, 350, "dead");

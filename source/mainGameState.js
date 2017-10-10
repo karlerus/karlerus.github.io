@@ -1,6 +1,6 @@
 // Create an empty object
 var mainGameState = { }
-var ship_velocity = 200;
+var ship_velocity = 300;
 var asteroid_velocity_min = 100;
 var asteroid_velocity_max = 250;
 //var asteroid_angular_min = 50;
@@ -13,8 +13,8 @@ var playerScore = 0;
 // Add the preload function
 mainGameState.preload = function() { 
     console.log("Pre-loading the Game");
-    this.game.load.image("bg4", "assets/images/bg4.png");
-    this.game.load.image("player-ship", "assets/images/player-ship.png");
+    this.game.load.image("ponyville", "assets/images/ponyville.png");
+    this.game.load.image("cloud", "assets/images/cloud.png");
     this.game.load.audio("pinkie-pie-make-a-wish", "assets/music/pinkie-pie-make-a-wish.mp3");
     // asteroid types
     this.game.load.image("applejack", "assets/images/applejack.png");
@@ -52,7 +52,7 @@ mainGameState.create = function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     
     // add background
-    game.add.sprite(0,0, "bg4");
+    game.add.sprite(0,0, "ponyville");
     // add background music
     this.music = game.add.audio("pinkie-pie-make-a-wish")
     this.music.play();
@@ -103,9 +103,9 @@ mainGameState.create = function() {
     // put this in a seperate function?________________________________________
     // coordinates for spaceShip
     var shipX = game.width * 0.5;
-    var shipY = game.height * 0.9;
+    var shipY = game.height * 0.95;
     // add spaceShip
-    this.playerShip = game.add.sprite(shipX, shipY, "player-ship");
+    this.playerShip = game.add.sprite(shipX, shipY, "cloud");
     this.playerShip.anchor.setTo(0.5, 0.5);
     // allow Phaser physics system to controle the playership
     game.physics.arcade.enable(this.playerShip);
